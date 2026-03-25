@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FaceAI | Real-Time Face Detection</title>
+  <meta name="description" content="Real-time face detection with age, gender and expression analysis powered by face-api.js and computer vision." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M2 20s2-4 10-4 10 4 10 4"/>
+          <path d="M1 3l22 0M1 9h3M20 9h3M1 15h3M20 15h3M1 21h22"/>
+        </svg>
+      </div>
+      <span class="logo-text">FaceAI</span>
+    </div>
+    <div class="header-badge">
+      <span class="badge-dot"></span>
+      <span>Powered by face-api.js</span>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1 class="hero-title">
+      Real-Time <span class="gradient-text">Face Detection</span>
+    </h1>
+    <p class="hero-subtitle">Detect faces, emotions, age & gender instantly using deep learning right in your browser — no server needed.</p>
+
+    <!-- Tab Switcher -->
+    <div class="tab-switcher" id="tabSwitcher">
+      <button class="tab-btn active" id="tabCamera" onclick="switchTab('camera')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+        </svg>
+        Live Camera
+      </button>
+      <button class="tab-btn" id="tabImage" onclick="switchTab('image')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+        Upload Image
+      </button>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loading-card">
+        <div class="spinner"></div>
+        <p class="loading-title">Loading AI Models</p>
+        <p class="loading-sub">Preparing face detection neural networks...</p>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera Panel -->
+    <div class="panel active" id="panelCamera">
+      <div class="split-viewer">
+        <!-- Left: Original clean feed -->
+        <div class="viewer-pane">
+          <div class="pane-label">📷 Original</div>
+          <div class="pane-box">
+            <video id="video" autoplay muted playsinline></video>
+          </div>
+        </div>
+        <!-- Divider -->
+        <div class="viewer-mid">
+          <div class="mid-dot"></div>
+          <div class="mid-line"></div>
+          <div class="mid-badge">AI</div>
+          <div class="mid-line"></div>
+          <div class="mid-dot"></div>
+        </div>
+        <!-- Right: Detection analysis canvas -->
+        <div class="viewer-pane">
+          <div class="pane-label">🔬 Detection</div>
+          <div class="pane-box">
+            <canvas id="cameraCanvas"></canvas>
+            <div class="no-face-msg" id="noFaceMsg">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="8" r="4"/><path d="M2 20s2-4 10-4 10 4 10 4"/>
+              </svg>
+              <p>No face detected</p>
+            </div>
+            <div class="scan-line" id="scanLine"></div>
+          </div>
+        </div>
+      </div>
+      <div class="camera-controls">
+        <button class="btn btn-primary" id="startCamBtn" onclick="startCamera()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/>
+          </svg>
+          Start Camera
+        </button>
+        <button class="btn btn-danger hidden" id="stopCamBtn" onclick="stopCamera()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/>
+          </svg>
+          Stop Camera
+        </button>
+        <button class="btn btn-secondary" id="snapshotBtn" onclick="takeSnapshot()" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+          </svg>
+          Snapshot
+        </button>
+      </div>
+    </div>
+
+    <!-- Image Panel -->
+    <div class="panel" id="panelImage">
+      <div class="upload-zone" id="uploadZone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <p class="upload-title">Drop an image to detect faces</p>
+        <p class="upload-sub">or click to browse — JPG, PNG, WEBP supported</p>
+        <span class="upload-btn">Choose File</span>
+        <input type="file" id="fileInput" accept="image/*" onchange="onFileSelected(event)" hidden />
+      </div>
+
+      <!-- Image Result Area -->
+      <div class="image-result hidden" id="imageResult">
+        <div class="split-viewer">
+          <!-- Left: original clean image -->
+          <div class="viewer-pane">
+            <div class="pane-label">📷 Original</div>
+            <div class="pane-box">
+              <img id="uploadedImg" src="" alt="Uploaded image" />
+            </div>
+          </div>
+          <!-- Divider -->
+          <div class="viewer-mid">
+            <div class="mid-dot"></div>
+            <div class="mid-line"></div>
+            <div class="mid-badge">AI</div>
+            <div class="mid-line"></div>
+            <div class="mid-dot"></div>
+          </div>
+          <!-- Right: analysis canvas -->
+          <div class="viewer-pane">
+            <div class="pane-label">🔬 Detection</div>
+            <div class="pane-box">
+              <canvas id="imageCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-secondary mt-12" onclick="resetImage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.29"/>
+          </svg>
+          Try Another Image
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card" id="statFaces">
+        <div class="stat-icon faces-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4"/><path d="M2 20s2-4 10-4 10 4 10 4"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-value" id="faceCount">0</div>
+          <div class="stat-label">Faces Detected</div>
+        </div>
+      </div>
+      <div class="stat-card" id="statFPS">
+        <div class="stat-icon fps-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-value" id="fpsDisplay">--</div>
+          <div class="stat-label">Speed (frames/sec)</div>
+        </div>
+      </div>
+      <div class="stat-card" id="statConfidence">
+        <div class="stat-icon conf-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77 5.82 21.02 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-value" id="confidenceDisplay">--%</div>
+          <div class="stat-label">Confidence</div>
+        </div>
+      </div>
+      <div class="stat-card" id="statMode">
+        <div class="stat-icon mode-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-value" id="modeDisplay">Idle</div>
+          <div class="stat-label">Status</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detection Cards -->
+    <div class="detections-section" id="detectionsSection">
+      <h2 class="section-title">Detection Results</h2>
+      <div class="detections-grid" id="detectionGrid">
+        <div class="empty-state">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <p>Start the camera or upload an image to begin detection</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>Built with <span class="heart">♥</span> using face-api.js &amp; Computer Vision | FaceAI &copy; 2026</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

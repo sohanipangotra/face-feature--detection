@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visionary | Image to Grayscale Converter</title>
+    <!-- Google Fonts for modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div class="background-elements">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <main class="app-container">
+        <header class="header">
+            <h1>Visionary</h1>
+            <p>Stunning computer vision grayscale conversion.</p>
+        </header>
+
+        <section class="converter-panel">
+            
+            <!-- Upload Area -->
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" id="fileInput" accept="image/*" hidden>
+                <div class="upload-content">
+                    <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <h2>Drag & Drop your image here</h2>
+                    <p>or</p>
+                    <button class="btn btn-primary" id="browseBtn">Browse Files</button>
+                </div>
+            </div>
+
+            <!-- Previews Area -->
+            <div class="preview-zone" id="previewZone" style="display: none;">
+                <div class="image-comparison">
+                    <div class="image-box">
+                        <h3 class="image-title">Original</h3>
+                        <div class="canvas-container">
+                            <canvas id="originalCanvas"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="conversion-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+
+                    <div class="image-box">
+                        <h3 class="image-title">Grayscale</h3>
+                        <div class="canvas-container">
+                            <canvas id="grayscaleCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-secondary" id="resetBtn">Convert Another</button>
+                    <button class="btn btn-primary" id="downloadBtn">Download Grayscale</button>
+                </div>
+            </div>
+            
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
